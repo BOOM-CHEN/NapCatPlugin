@@ -1,0 +1,6 @@
+@NapCatPlugin_HostAddress = http://localhost:5211
+
+GET {{NapCatPlugin_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
