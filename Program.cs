@@ -16,15 +16,12 @@ namespace NapCatPlugin
             builder.Services.AddOpenApi();
             builder.Services.AddHttpClient("QASearchService");
 
-            //注册日志回调事件
             BotEventHandler.OnLogReceived += (level, message) =>
             {
-                // 过滤掉Debug日志
                 if (level == NapPlana.Core.Data.LogLevel.Debug)
                 {
                     return;
                 }
-                //可以接入自己的日志系统
                 Console.WriteLine($"[{level}] {message}");
             };
             var bot = PlanaBotFactory
