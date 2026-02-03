@@ -32,7 +32,7 @@ namespace NapCatPlugin.Services
 
             BotEventHandler.OnGroupMessageReceived += async (eventData) =>
             {
-                Console.WriteLine($"群消息类型 {eventData.MessageType}, 消息ID: {eventData.MessageId}");
+                Console.WriteLine($"群消息类型 {eventData.MessageType}, 消息ID: {eventData.MessageId}, 群ID: {eventData.GroupId}");
                 try
                 {
                     string messageContent = string.Empty;
@@ -45,23 +45,37 @@ namespace NapCatPlugin.Services
                         return;
                     }
 
-                    //var atInfo = eventData.;
-                    //if (atInfo != null && atInfo.QQ != null && atInfo.QQ.Contains(_bot.QQ))
-                    //{
-                    //    var question = messageContent
-                    //        .Replace($"[AT:{_bot.QQ}]", "")
-                    //        .Replace($"[@{_bot.QQ}]", "")
-                    //        .Replace("@", "")
-                    //        .Trim();
+                    if (string.IsNullOrWhiteSpace(messageContent))
+                    {
+                        return;
+                    }
 
-                    //    if (!string.IsNullOrWhiteSpace(question))
-                    //    {
-                    //        _logger.LogInformation("群消息触发QA: {Question}", question);
+                    var botQQ = eventData.SelfId;
+                    if (botQQ == 0)
+                    {
+                        return;
+                    }
 
-                    //        var response = await _qaSearchService.GetResponseAsync(question);
-                    //        await SendGroupMessage(eventData.GroupId, response);
-                    //    }
-                    //}
+                    var isAtBot = messageContent.Contains($"[CQ:at,qq={botQQ}]") ||
+                                  messageContent.Contains($"@") ||
+                                  messageContent.Contains($"[AT:{botQQ}]");
+
+                    if (isAtBot)
+                    {
+                        var question = messageContent
+                            .Replace($"[CQ:at,qq={botQQ}]", "")
+                            .Replace($"[AT:{botQQ}]", "")
+                            .Replace("@", "")
+                            .Trim();
+
+                        if (!string.IsNullOrWhiteSpace(question))
+                        {
+                            _logger.LogInformation("群消息触发QA: {Question}", question);
+
+                            var response = await _qaSearchService.GetResponseAsync(question);
+                            //await SendGroupMessage(eventData.GroupId, response);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
